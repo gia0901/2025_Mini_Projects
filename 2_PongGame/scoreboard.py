@@ -3,12 +3,14 @@ from turtle import Turtle
 import config as cfg
 
 class ScoreBoard(Turtle):
-    def __init__(self):
+    def __init__(self, cord):
         super().__init__()
         self.score = 0
         self.color("white")
         self.hideturtle()
         self.penup()
+        self.goto(cord[0], cord[1])
+        self.refresh()
 
     def refresh(self):
         self.clear()

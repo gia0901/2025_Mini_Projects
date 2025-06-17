@@ -3,7 +3,7 @@ from turtle import Turtle
 import config as cfg
 
 class Paddle(Turtle):
-    def __init__(self):
+    def __init__(self, cord):
         super().__init__()
         self.shape("square")
         self.color("orange")
@@ -11,6 +11,7 @@ class Paddle(Turtle):
         self.penup()
         self.setheading(cfg.HEAD_NORTH)
         self.shapesize(stretch_wid=1.0, stretch_len=5.0)
+        self.goto(cord[0], cord[1])
     
     def move_up(self):
         # Detect top boundary:

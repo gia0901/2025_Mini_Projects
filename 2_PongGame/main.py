@@ -14,20 +14,13 @@ screen.bgcolor(cfg.BACKGROUND_COLOR)
 screen.title("Pong Game")
 screen.tracer(0)
 
-# Middle-line drawing
-middle_line = Turtle()
-middle_line.color(cfg.MIDDLE_LINE_COLOR)
-middle_line.pensize(cfg.MIDDLE_LINE_SIZE)
-middle_line.hideturtle()
-
-
 # Paddle
-left_paddle = Paddle()
-right_paddle = Paddle()
+left_paddle = Paddle(cfg.LEFT_PADDLE_START_CORD)
+right_paddle = Paddle(cfg.RIGHT_PADDLE_START_CORD)
 
 # Scoreboards
-left_scoreboard = ScoreBoard()
-right_scoreboard = ScoreBoard()
+left_scoreboard = ScoreBoard(cfg.LEFT_SCOREBOARD_CORD)
+right_scoreboard = ScoreBoard(cfg.RIGHT_SCOREBOARD_CORD)
 
 # Ball
 ball = Ball()
@@ -40,28 +33,43 @@ screen.onkey(left_paddle.move_down, "s")
 screen.onkey(right_paddle.move_up, "Up")
 screen.onkey(right_paddle.move_down, "Down")
 
-# Draw middle-line (temporary)
-middle_line.goto(0, cfg.TOP_BOUNDARY)
-middle_line.setheading(cfg.HEAD_SOUTH)
-middle_line.forward(600)
 
-# Move Paddles
-left_paddle.goto(cfg.LEFT_PADDLE_XCOR, 0)
-right_paddle.goto(cfg.RIGHT_PADDLE_XCOR, 0)
+#------------------------ MAIN LOOP --------------------------#
+is_game_on = True
 
-# Move Scoreboards
-left_scoreboard.goto(cfg.LEFT_SCOREBOARD_XCOR, cfg.LEFT_SCOREBOARD_YCOR)
-left_scoreboard.refresh()
-right_scoreboard.goto(cfg.RIGHT_SCOREBOARD_XCOR, cfg.RIGHT_SCOREBOARD_YCOR)
-right_scoreboard.refresh()
+game_speed = cfg.DEFAULT_BALL_SPEED
 
-# Move the ball
-
-is_game_over = False
-while not is_game_over:
+while is_game_on:
+    time.sleep(game_speed)
     screen.update()
-    time.sleep(0.1)
-    ball.start_to_move()
+    
+    ball.move()
+
+    # Detect top / bottom wall collision
+    if ball.ycor() > cfg.TOP_BOUNDARY - 25 or ball.ycor() < cfg.BOT_BOUNDARY + 25:
+        ball.reflect_horizontal()
+
+    # Detect left paddle collision
+    # Increase the ball speed whenever touching the paddle, make the game more difficult over time.
+    if ball.xcor() < cfg.LEFT_BOUNDARY + 40 and ball.distance(left_paddle) < 50:
+        ball.reflect_vertical()
+        game_speed *= cfg.SPEED_INCREASE_RATE
+
+    elif ball.xcor() > cfg.RIGHT_BOUNDARY - 50 and ball.distance(right_paddle) < 50:
+        ball.reflect_vertical()
+        game_speed *= cfg.SPEED_INCREASE_RATE
+
+    # Detect out of range
+    # Start a new round, restart ball speed value
+    if ball.xcor() < cfg.LEFT_BOUNDARY:
+        right_scoreboard.increase_score()
+        game_speed = cfg.DEFAULT_BALL_SPEED
+        ball.reset_position()
+
+    elif ball.xcor() > cfg.RIGHT_BOUNDARY:
+        left_scoreboard.increase_score()
+        game_speed = cfg.DEFAULT_BALL_SPEED
+        ball.reset_position()
 
 
 screen.exitonclick()
